@@ -1,5 +1,5 @@
 # Import dependencies
-from training_utils import *
+from .training_utils import *
 from pathlib import Path
 import pandas
 import numpy
@@ -53,7 +53,7 @@ def __main__():
     #Create the dataframe
     df = pd.concat([pd.read_pickle(i) for i in pkls]) #this will work for a single master df
 
-    #Augment the dataframe with the missing columns
+    #Augment the dataframe with the missing columns - currently comes from string manipulation
     df = augment_dataframe(df)
     #print(df.head(1))
 

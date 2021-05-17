@@ -13,7 +13,7 @@ import pandas as pd
 import sys
 import os
 import argparse
-from simulation_utils import *
+from .simulation_utils import *
 
 
 def __main__():
@@ -68,6 +68,7 @@ def __main__():
                                     in_files)):
         key = str(uuid4())
         file_out = f'{str(out_path)}/{key}_prism.h5'
+        # this is a nested dictionary
         simulation_params[key] = { 'probeSemiangle':val[0],
                                     'alphaBeamMax': val[0]*2,
                                     'numFP':val[1],
@@ -91,6 +92,7 @@ def __main__():
         local_dict = simulation_params[key]
 
         # set default values
+        # these are overwritten afterwards. 
         meta = pr.Metadata(
             algorithm='multislice',
             E0=300,

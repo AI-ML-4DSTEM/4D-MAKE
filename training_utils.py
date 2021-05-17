@@ -143,7 +143,7 @@ def get_qx_qy(example: pandas.Series, cbeds: numpy.array):
     
     return qx, qy
 
-def scale_probe(probe: numpy.array, max_val=1):
+def scale_probe(probe: numpy.array, max_val=1, ):
     """
     Placeholder
     """
@@ -305,6 +305,8 @@ def convert_dataframe_to_training_data(index: int,
                                        training_path:Union[str, pathlib.PosixPath, pathlib.WindowsPath],
                                        data_path:Union[str, pathlib.PosixPath, pathlib.WindowsPath]):
     """
+    DON'T USE
+    
     Placeholder 
     """
     #Should I add a try statement here? 

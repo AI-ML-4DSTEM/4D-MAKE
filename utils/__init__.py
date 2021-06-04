@@ -9,6 +9,6 @@
 # # ---> parsers.parse_scrape_args()
 
 from . import general_utils
-from . import prasers
+from . import parsers
 from . import simulation_utils
 from . import dataframe_utils

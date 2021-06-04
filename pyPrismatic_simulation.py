@@ -88,7 +88,7 @@ def __main__():
         enable_nvlink = True
         enable_infiniband = False
 
-        initialize(
+        initialize.initialize(
             create_cuda_context=True,
             enable_tcp_over_ucx=enable_tcp_over_ucx,
             enable_infiniband=enable_infiniband,
@@ -119,7 +119,7 @@ def __main__():
 
         # load the rotation dataframe
         master_rotation_df = df_utils.master_df_loader(
-                        master_df_path=args.rot_master_df_path,
+                        master_df_path=args.master_rotation_df,
                         df_type=args.dataframe_type,
                         df_extension=args.df_extension)
 

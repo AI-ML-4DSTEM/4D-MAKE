@@ -109,7 +109,7 @@ def __main__():
     if args.master_simulation_df != None:
         # load the dataframe with all the rotation names and structure paths
         master_simulation_df = df_utils.master_df_loader(
-                        master_df_path=rot_master_df_path,
+                        master_df_path=rot_master_df_path, # this looks wrong
                         df_type=args.dataframe_type,
                         df_extension=args.df_extension
                         )
@@ -126,7 +126,7 @@ def __main__():
         # ensure the rotation dataframe is a dask_dataframe
         # do I want to add a dask switch here 
         if type(master_rotation_df) == pandas.core.frame.DataFrame:
-            master_rotation_df = dd.from_pandas(master_rotation_df, npartions=4) # how to pick a sensible number here
+            master_rotation_df = dd.from_pandas(master_rotation_df, npartitions=4) # how to pick a sensible number here
         else:
             pass
         
@@ -144,21 +144,13 @@ def __main__():
                                         dataframe_save_path=simulation_dataframe_save_path
                                         ), axis=1, meta=master_rotation_df)
         
+        res.compute()
         
         # collect all the simulation dataframes together into a master dataframe
         master_simulation_df = df_utils.create_master_simulation_dataframe(
                                 dataframe_save_path=simulation_dataframe_save_path)
         
 
-
-
-        # check the dataframe for duplicates
-        master_simulation_df = master_simulation_df.map_partitions(lambda df:
-                        df_utils.check_master_dataframe_for_duplicates(df),
-                        meta=master_simulation_df).compute(scheduler=client)
-
-
-        
         # ensure the simulation dataframe is a dask_dataframe
         # do I want to add a dask switch here 
         if type(master_simulation_df) == pandas.core.frame.DataFrame:
@@ -166,11 +158,20 @@ def __main__():
         else:
             pass
 
+
         # check the dataframe for duplicates
-        # not sure on the functionality of this feature. 
         master_simulation_df = master_simulation_df.map_partitions(lambda df:
                         df_utils.check_master_dataframe_for_duplicates(df),
                         meta=master_simulation_df).compute(scheduler=client)
+
+
+        
+
+        # # check the dataframe for duplicates
+        # # not sure on the functionality of this feature. 
+        # master_simulation_df = master_simulation_df.map_partitions(lambda df:
+        #                 df_utils.check_master_dataframe_for_duplicates(df),
+        #                 meta=master_simulation_df).compute(scheduler=client)
 
     # Simulate the dataframe
     res = master_simulation_df.apply(lambda row: sim_utils.simulate_row(row), axis=1, meta=master_simulation_df)

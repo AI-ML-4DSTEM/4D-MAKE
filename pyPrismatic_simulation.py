@@ -154,7 +154,7 @@ def __main__():
         # ensure the simulation dataframe is a dask_dataframe
         # do I want to add a dask switch here 
         if type(master_simulation_df) == pandas.core.frame.DataFrame:
-            master_simulation_df = dd.from_pandas(master_simulation_df, npartions=4) # how to pick a sensible number here
+            master_simulation_df = dd.from_pandas(master_simulation_df, npartitions=4) # how to pick a sensible number here
         else:
             pass
 

@@ -159,10 +159,10 @@ def __main__():
             pass
 
 
-        # check the dataframe for duplicates
-        master_simulation_df = master_simulation_df.map_partitions(lambda df:
-                        df_utils.check_master_dataframe_for_duplicates(df),
-                        meta=master_simulation_df).compute(scheduler=client)
+        # # check the dataframe for duplicates
+        # master_simulation_df = master_simulation_df.map_partitions(lambda df:
+        #                 df_utils.check_master_dataframe_for_duplicates(df),
+        #                 meta=master_simulation_df).compute(scheduler=client)
 
 
         

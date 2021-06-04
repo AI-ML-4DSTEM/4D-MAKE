@@ -33,7 +33,8 @@ def parse_prismatic_simulations_args() ->  argparse.Namespace:
                         help="set the extension type to pick the reader, defualts to pickle")
     # add the master simulation path 
     parser.add_argument("-master_sim", "--master_simulation_path", )
-
+    # path to load a json configuration file
+    parser.add_argument("-json", "--json_path", type=str, default=None, help="path to the json configuration file")
     # simulation paramters 
     parser.add_argument("-gpu", "--num_gpus", default=1, type=int,
                         help="passes the number of gpus to be used for the simulations")

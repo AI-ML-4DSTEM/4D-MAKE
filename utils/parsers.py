@@ -34,7 +34,7 @@ def parse_prismatic_simulations_args() ->  argparse.Namespace:
     parser.add_argument("-rot_df", "--master_rotation_df", type=str, 
                         help="path to the rotation master dataframe")
     # add the master simulation df path df
-    parser.add_argument("-master_sim", "--master_simulation_df", type=str,
+    parser.add_argument("-master_sim", "--master_simulation_df", default=None, type=str,
                         help="path to the master simulation dataframe" )
     # pick the type of dataframe to load 
     parser.add_argument("-df_type", "--dataframe_type", choices=['pandas', 'dask'], default='pandas', type=str,

@@ -8,31 +8,40 @@ from types import SimpleNamespace
 def parse_prismatic_simulations_args() ->  argparse.Namespace:
     """
     parse the arguments for the pyPrismatic simulations
+
+    TODO 
+    - add constraint that it requires at least 1 of n argumnets are passed.  
+        group = parser.add_mutually_exclusive_group(required=True)
+        group.add_argument('--foo',action=.....)
+        group.add_argument('--bar',action=.....)
+    - add dask switch 
+    - add skip steps if the simulation dataframe exits
+    - add check if simulation exists  
+    Returns:
     """
-    ### add 
-    # dask switch 
-    # skip steps if the simulation dataframe exits
-    # add check if simulation exists  
+
 
     parser = argparse.ArgumentParser()
 
     # parse the arguments
     # required 
-    parser.add_argument("-rot_df", "--rotation_master_df", type=str, required=True, 
-                        help="path to the rotation master dataframe")
     parser.add_argument("-h5", "--h5_save_path", type=str, required=True,
                         help="path to where h5 simulation files will be saved")
-    parser.add_argument("-pkl", "--simulation_dataframe_save_path", type=str, required=True,
+    parser.add_argument("-df_save", "--simulation_dataframe_save_path", type=str, required=True,
                         help="path to where the simulation dataframe will be saved")
     # optional 
+    # pass the rotation master dataframe 
+    parser.add_argument("-rot_df", "--master_rotation_df", type=str, 
+                        help="path to the rotation master dataframe")
+    # add the master simulation df path df
+    parser.add_argument("-master_sim", "--master_simulation_df", type=str,
+                        help="path to the master simulation dataframe" )
     # pick the type of dataframe to load 
     parser.add_argument("-df_type", "--dataframe_type", choices=['pandas', 'dask'], default='pandas', type=str,
                         help="pick the type of dataframe to be loaded, deafults to pandas")
     # pick the dataframe format
     parser.add_argument("-df_ex", "--df_extension", choices=['csv', 'parq', 'pkl'], default='pkl', type=str,
                         help="set the extension type to pick the reader, defualts to pickle")
-    # add the master simulation path 
-    parser.add_argument("-master_sim", "--master_simulation_path", )
     # path to load a json configuration file
     parser.add_argument("-json", "--json_path", type=str, default=None, help="path to the json configuration file")
     # simulation paramters 
@@ -53,6 +62,10 @@ def parse_prismatic_simulations_args() ->  argparse.Namespace:
                         help="set potential bound")
     parser.add_argument("-defocus", "--probe_defocus", nargs='+', default=None, type=float,
                         help="set probe defocus, defaults to None, which falls back to hardcoded list")
+    # a flag to run a slightly larger size 4 crystals
+    parser.add_argument("--smoke_test", action="store_true", help="reduces the size of the intermediate dataframe to 4 rows")
+    # a flag to run a slightly larger size 20 crystals
+    parser.add_argument("--fire_test", action="store_true", help="reduces the size of the intermediate dataframe to 20 rows")
     
     args = parser.parse_args()
 
@@ -74,3 +87,38 @@ def parse_json_file(json_path:Union[str, pathlib.PosixPath, pathlib.WindowsPath]
         args = json.load(file, object_hook=lambda d: SimpleNamespace(**d))
     
     return args
+
+def dict_to_sns(d:dict) -> types.SimpleNamespace:
+    """
+    creates a SimpleNamespace object from a dictonary. Nested dictonaries not handled brillaintly
+
+    sns.foo['bar']
+
+    Args:
+        d (dict): dictonary which can be nested to any degree 
+
+    Returns:
+        types.SimpleNamespace: [description]
+    """
+    return SimpleNamespace(**d)
+
+
+def create_namespace_from_dict(d:dict) -> types.SimpleNamespace:
+    """
+    Creates a SimpleNamespace object from a dictionary, handles nested dictonaires nicely. 
+    objects will be accessbile as sns.foo.bar 
+
+    Args:
+        dictionary (dict): [description]
+
+    Returns:
+        types.SimpleNamespace: [description]
+    """
+
+    # convert the dictionary to a string 
+    json_object = json.dumps(d)
+
+    # load the string with json parser 
+    sns = json.loads(json_object, object_hook=dict_to_sns)
+
+    return sns

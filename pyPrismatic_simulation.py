@@ -45,7 +45,7 @@ if args.json_path != None:
     # parse the json file to get args
     args2 = parsers.parse_json_file(args.json_path)
     # create dictionary with all the args from json and command Line 
-    # JSON IS RETAINED OVER COMMAND LINE 
+    # JSON IS RETAINED OVER COMMAND LINE
     args_dict = {**vars(args), **vars(args2)}
     # convert the dictionary back to a SimpleNamespace
     args = SimpleNamespace(**args_dict)
@@ -54,7 +54,10 @@ else:
     pass
 
 # set the paths and esure they are pathlib objects
-rot_master_df_path = Path(args.rotation_master_df)
+if args.master_rotation_df != None: 
+    rot_master_df_path = Path(args.master_rotation_df) # no longer a required argument
+else:
+    pass
 h5_save_path = Path(args.h5_save_path)
 simulation_dataframe_save_path = Path(args.simulation_dataframe_save_path)
 
@@ -89,9 +92,14 @@ potential_bound = [args.potential_bound]
 if args.num_gpus == 0: 
     # I need to set it as CPU only compute 
     pass
+    # should I add an option for non dask 
 
 elif args.num_gpus >= 1:
+    # I need to add an option for GPU and pandas style gpu
     from dask_cuda import initialize 
+    # These settings should be set using the json config
+    # convert this to a function so I can pass the json args to it e.g. 
+    # cuda_protocols(**args.dask_cuda_func.__todict__()), and have defaults set to these. 
     protocol = "ucx"
     enable_tcp_over_ucx = True
     enable_nvlink = True
@@ -110,58 +118,81 @@ elif args.num_gpus >= 1:
                             enable_infiniband=enable_infiniband,
                             enable_nvlink=enable_nvlink,
                             threads_per_worker=6,
-                            #rmm_pool_size="35GB"
+                            #rmm_pool_size="35GB" #  I think I need to change my docker base image to a later version of cuda 
                         )
     client = Client(cluster)
 
-
+# if the master simulation dataframe is passed we can use that 
 if args.master_simulation_df != None:
     # load the dataframe with all the rotation names and structure paths
-    master_rotation_df = df_utils.master_rotation_df_loader(
+    master_simulation_df = df_utils.master_df_loader(
                     master_df_path=rot_master_df_path,
                     df_type=args.dataframe_type,
                     df_extension=args.df_extension
                     )
 
+# if the simulation dataframe is not passed we need to create it 
+else:
 
-    # ensure its a dask_dataframe
+    # load the rotation dataframe
+    master_rotation_df = df_utils.master_df_loader(
+                    master_df_path=args.rot_master_df_path,
+                    df_type=args.dataframe_type,
+                    df_extension=args.df_extension)
+
+    # ensure the rotation dataframe is a dask_dataframe
     # do I want to add a dask switch here 
     if type(master_rotation_df) == pandas.core.frame.DataFrame:
-        master_rotation_df = dd.from_pandas(master_rotation_df, npartions=)
+        master_rotation_df = dd.from_pandas(master_rotation_df, npartions=4) # how to pick a sensible number here
+    else:
+        pass
+    
+    # for each row in the roation dataframe create the simualtion dataframe
+
+    res = master_rotation_df.apply(lambda row: df_utils.create_simulation_dataframe_from_series(
+                                    row=row, 
+                                    E0s=E0s,
+                                    semi_angles=semi_angles,
+                                    probe_defocuses=probe_defocuses,
+                                    num_fps=num_fps,
+                                    slice_thickness=slice_thickness,
+                                    potential_bound=potential_bound,
+                                    h5_save_path=h5_save_path,
+                                    dataframe_save_path=simulation_dataframe_save_path
+                                    ), axis=1, meta=master_rotation_df)
+    
+    
+
+    master_simulation_df = df_utils.create_master_simulation_dataframe(
+                            dataframe_save_path=simulation_dataframe_save_path)
+    
+
+
+
+    # check the dataframe for duplicates
+    master_simulation_df = master_simulation_df.map_partitions(lambda df:
+                     df_utils.check_master_dataframe_for_duplicates(df),
+                     meta=master_simulation_df).compute(scheduler=client)
+
+
+    
+    # ensure the simulation dataframe is a dask_dataframe
+    # do I want to add a dask switch here 
+    if type(master_simulation_df) == pandas.core.frame.DataFrame:
+        master_simulation_df = dd.from_pandas(master_simulation_df, npartions=4) # how to pick a sensible number here
     else:
         pass
 
-
-    df_utils.check_master_dataframe_for_duplicates()
-
-
-    res = master_rotation_df.apply(lambda row: 
-                df_utils.create_simulation_dataframe_from_series(
-                    row=row, 
-                    semi_angles=semi_angles,
-                    num_fps=num_fps,
-                    E0s=E0s,
-                    probe_defocuses=probe_defocuses, 
-                    slice_thickness=slice_thickness,
-                    potential_bound=potential_bound, 
-                    h5_save_path='.',
-                    dataframe_save_path='.'), axis=1, meta=master_rotation_df)
-
-    res.compute(scheduler=client)
-
-else:
-    master_simulation_dataframe = df_utils.create_master_simulation_dataframe()
+    # check the dataframe for duplicates
+    # not sure on the functionality of this feature. 
+    master_simulation_df = master_simulation_df.map_partitions(lambda df:
+                     df_utils.check_master_dataframe_for_duplicates(df),
+                     meta=master_simulation_df).compute(scheduler=client)
 
 
-
-
-
-##### QUICK DASK COMMANDS ######
-res = dask_master_df.apply(lambda row: create_simulation_dataframe_from_series(row=row, semi_angles=[1,2,3],num_fps=[1],E0s=[100,200,300],probe_defocuses=[0], slice_thickness=[2],potential_bound=[2], h5_save_path='.', dataframe_save_path='.'), axis=1, meta=dask_master_df)
+res = master_simulation_df.apply(lambda row: sim_utils.simulate_row(row), axis=1, meta=master_simulation_df)
 
 res.compute(scheduler=client)
 
-# applying the simulate function to it all 
-ddf = dd.from_pandas(sim_df, npartitions=9) 
-# this raises an error but it runs. I need to get a better handle on meta_data.
-res = ddf.apply(simulate_row, gpu=0, axis=1, meta=ddf)   
+
+

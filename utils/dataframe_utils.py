@@ -14,7 +14,7 @@ from . import general_utils as  gen_utils
 
 
 
-def master_rotation_df_loader(master_df_path: Union[str, pathlib.PosixPath, pathlib.WindowsPath],
+def master_df_loader(master_df_path: Union[str, pathlib.PosixPath, pathlib.WindowsPath],
                     df_type: str, df_extension: str):
     """
     Placeholder
@@ -82,7 +82,7 @@ def create_simulation_dataframe_from_series(row:pandas.Series,
 
     """
     Placeholder
-    takes a row from the master dataframe and returns a dataframe with all the 
+    takes a row from the master rotation dataframe and returns a dataframe with all the 
     different simulation parameters, each row returns an individual dataframe. 
     """
        

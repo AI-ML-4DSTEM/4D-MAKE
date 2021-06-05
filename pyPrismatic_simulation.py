@@ -83,9 +83,11 @@ def __main__():
         # These settings should be set using the json config
         # convert this to a function so I can pass the json args to it e.g. 
         # cuda_protocols(**args.dask_cuda_func.__todict__()), and have defaults set to these. 
+        # these settings are system dependent so I need a way to have a sensible way to handle it
+        # only over TCP is the safest and probably performant enough method. 
         protocol = "ucx"
         enable_tcp_over_ucx = True
-        enable_nvlink = False
+        enable_nvlink = False # on local machine oif True I duplicate the crystals. 
         enable_infiniband = False
 
         initialize.initialize(
@@ -172,6 +174,7 @@ def __main__():
 
     res.compute(scheduler=client)
 
+    client.shutdown()
 if __name__ == '__main__':
     __main__()
 

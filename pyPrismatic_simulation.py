@@ -85,7 +85,7 @@ def __main__():
         # cuda_protocols(**args.dask_cuda_func.__todict__()), and have defaults set to these. 
         protocol = "ucx"
         enable_tcp_over_ucx = True
-        enable_nvlink = True
+        enable_nvlink = False
         enable_infiniband = False
 
         initialize.initialize(
@@ -160,14 +160,8 @@ def __main__():
 
 
         # # check the dataframe for duplicates
-        # master_simulation_df = master_simulation_df.map_partitions(lambda df:
-        #                 df_utils.check_master_dataframe_for_duplicates(df),
-        #                 meta=master_simulation_df).compute(scheduler=client)
-
-
-        
-
-        # # check the dataframe for duplicates
+        # # issues with meta data, this add 'row_hash' str to the columnts
+        # # I'm not 100% how to handle the meta data
         # # not sure on the functionality of this feature. 
         # master_simulation_df = master_simulation_df.map_partitions(lambda df:
         #                 df_utils.check_master_dataframe_for_duplicates(df),

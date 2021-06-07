@@ -175,6 +175,7 @@ def __main__():
     res.compute(scheduler=client)
 
     client.shutdown()
+    
 if __name__ == '__main__':
     __main__()
 

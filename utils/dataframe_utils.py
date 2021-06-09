@@ -179,3 +179,19 @@ def create_master_simulation_dataframe(dataframe_save_path: Union[str, pathlib.P
     else: 
         return None
 
+def change_path_root(row:pandas.Series, 
+        base_path:Union[str, pathlib.PosixPath, pathlib.WindowsPath]) -> Union[str, pathlib.PosixPath, pathlib.WindowsPath]:
+    """[summary]
+
+    Args:
+        row (pandas.Series): [description]
+        base_path (Union[str, pathlib.PosixPath, pathlib.WindowsPath]): [description]
+
+    Returns:
+        Union[str, pathlib.PosixPath, pathlib.WindowsPath]: [description]
+    """
+    tmp_row = row.copy(deep=True)
+    base_path = Path(base_path)
+    filename = Path(tmp_row.filenameOutput)
+    filename = base_path / filename.parent.name / filename.name
+    return filename

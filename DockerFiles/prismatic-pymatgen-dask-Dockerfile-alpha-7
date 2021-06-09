@@ -1,0 +1,47 @@
+FROM arakowsk/ml-ai-4dstem:prismatic-pymatgen-dask-Dockerfile-baseimage1
+
+WORKDIR /home/
+
+ENV LD_LIBRARY_PATH=/usr/local/boost/lib/usr/local/fftw/lib:/usr/local/hdf5/lib:/usr/local/boost/lib:/usr/local/nvidia/lib:/usr/local/nvidia/lib64:$LD_LIBRARY_PATH
+ENV PATH=/usr/local/bin:$PATH
+ENV CPATH=/usr/local/hdf5/include:$CPATH
+ENV HDF5_DIR=/usr/local/hdf5ENV HDF5_DIR=/usr/local/hdf5
+ENV PATH=/usr/local/hdf5/bin:/usr/local/fftw/bin:/usr/local/bin:$PATH
+ENV CPLUS_INCLUDE_PATH=/usr/local/cuda-10.1/include:/usr/local/boost:/usr/local/fftw/include:/usr/local/hdf5/include:$CPLUS_INCLUDE_PATH
+ENV PATH /miniconda3/bin:/miniconda3/condabin:$PATH
+SHELL ["/bin/bash", "-c"]
+RUN \ 
+  apt-get update -y && \
+  DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+  pkg-config \
+  git \
+  wget && \
+  rm -rf /var/lib/apt/lists/* && \
+  wget -q https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh && \
+  bash ./Miniconda3-latest-Linux-x86_64.sh -b -p /miniconda3 && \
+  rm ./Miniconda3-latest-Linux-x86_64.sh && \ 
+  conda init bash && \ 
+  source /root/.bashrc && \
+  conda create -n main python=3.7 && \ 
+  source activate main && \
+  git clone --branch dev https://github.com/prism-em/prismatic prismatic && \
+  cd prismatic && \ 
+  mkdir build && \
+  cd build && \ 
+  cmake ../ -DPRISMATIC_ENABLE_PYPRISMATIC=1  -DPRISMATIC_ENABLE_GPU=1 -DPRISMATIC_ENABLE_PYTHON_GPU=1 -DFFTW_INCLUDE_DIRS=/usr/local/fftw/include/ -DFFTW_ROOT=/usr/local/fftw/ && \
+  make -j 8 &&\
+  make install && \
+  cd .. && \
+  pip install setuptools && \
+  pip install -r requirements.txt && \
+  pip install jupyter && \
+  python setup.py install -DPRISMATIC_ENABLE_GPU=1 -DFFTW_INCLUDE_DIRS=/usr/local/fftw/include/ -DFFTW_ROOT=/usr/local/fftw/ -DBOOST_ROOT=/usr/local/boost/ -DPRISMATIC_ENABLE_PYTHON_GPU=1 -DPYTHON_INCLUDE_DIR=$(python -c "from distutils.sysconfig import get_python_inc; print(get_python_inc())")  -DPYTHON_LIBRARY=$(python -c "import distutils.sysconfig as sysconfig; print(sysconfig.get_config_var('LIBDIR'))") && \
+  conda install -c rapidsai -c nvidia -c conda-forge dask dask-cuda cudatoolkit=10.1 && \
+  conda install -c conda-forge pymatgen ipykernel && \
+  pip install jedi==0.17.2 && \
+  echo "source activate main" > ~/.bashrc
+RUN \
+  source activate main && \
+  conda install -c conda-forge -c rapidsai ucx-proc=*=gpu ucx ucx-py && \
+  conda install -c conda-forge dask-mpi && \
+  conda install -c conda-forge fastparquet pyarrow 

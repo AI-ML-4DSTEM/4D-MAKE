@@ -115,7 +115,14 @@ def __main__():
                         df_type=args.dataframe_type,
                         df_extension=args.df_extension
                         )
-
+        if args.smoke_test:
+            master_simulation_df = master_simulation_df[:4]
+            nparts = 4
+        elif args.fire_test:
+            master_simulation_df = master_simulation_df[:20]
+            nparts = 4
+        else:
+            nparts = 40
     # if the simulation dataframe is not passed we need to create it 
     else:
 
@@ -125,10 +132,18 @@ def __main__():
                         df_type=args.dataframe_type,
                         df_extension=args.df_extension)
 
+        if args.smoke_test:
+            master_rotation_df = master_rotation_df[:4]
+            nparts = 4
+        elif args.fire_test:
+            master_rotation_df = master_rotation_df[:20]
+            nparts = 4
+        else:
+            nparts = 40
         # ensure the rotation dataframe is a dask_dataframe
         # do I want to add a dask switch here 
         if type(master_rotation_df) == pandas.core.frame.DataFrame:
-            master_rotation_df = dd.from_pandas(master_rotation_df, npartitions=4) # how to pick a sensible number here
+            master_rotation_df = dd.from_pandas(master_rotation_df, npartitions=nparts) # how to pick a sensible number here
         else:
             pass
         
@@ -175,7 +190,7 @@ def __main__():
     res.compute(scheduler=client)
 
     client.shutdown()
-    
+
 if __name__ == '__main__':
     __main__()
 

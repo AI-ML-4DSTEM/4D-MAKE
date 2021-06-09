@@ -77,7 +77,9 @@ def create_simulation_dataframe_from_series(row:pandas.Series,
                                 potential_bound:list,
                                 h5_save_path: Union[str, pathlib.PosixPath, pathlib.WindowsPath],
                                 dataframe_save_path: Union[str, pathlib.PosixPath, pathlib.WindowsPath],
-                                algorithm:str = 'multislice'
+                                algorithm:str = 'multislice',
+                                no_pixels:tuple = (512,512),
+                                numSlices:int = 10
                                 ):
 
     """
@@ -136,6 +138,10 @@ def create_simulation_dataframe_from_series(row:pandas.Series,
         tmp_row['probeDefocus'] = value[3]
         tmp_row['sliceThickness'] = value[4]
         tmp_row['potBound'] = value[5]
+        tmp_row['no_pixels'] = no_pixels
+        tmp_row['numSlices'] = numSlices
+        tmp_row['realspacePixelSizeX'] = tmp_row.cell_size[0] / tmp_row.no_pixels[0]
+        tmp_row['realspacePixelSizeY'] = tmp_row.cell_size[1] / tmp_row.no_pixels[1]
         tmp_row['simulation_seed'] = gen_utils.hash_string_to_int(str(tmp_row.filenameOutput))
         tmp_row['algorithm'] = algorithm
         tmp_row['simulation_program'] = 'pyprismatic'

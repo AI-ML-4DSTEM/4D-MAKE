@@ -71,8 +71,9 @@ def make_simulation_parameters_dictionary(row: pandas.Series,
         'algorithm'             : tmp_row.algorithm, # commented out 
         'randomSeed'            : tmp_row.simulation_seed,
         'numGPUs'               : GPU,
-        'realspacePixelSizeX'   : tmp_row.cell_size[0] / no_pixels[0],
-        'realspacePixelSizeY'   : tmp_row.cell_size[1] / no_pixels[1] 
+        'realspacePixelSizeX'   : tmp_row.realspacePixelSizeX,
+        'realspacePixelSizeY'   : tmp_row.realspacePixelSizeY,
+        'numSlices'             : tmp_row.numSlices 
         }
 
     return simulation_parms
@@ -123,3 +124,4 @@ def simulate_row(row: pandas.Series,
     meta.go(display_run_time=True, save_run_time=False)
 
     return None
+    

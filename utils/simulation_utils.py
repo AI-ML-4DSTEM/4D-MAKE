@@ -60,7 +60,7 @@ def make_simulation_parameters_dictionary(row: pandas.Series,
     simulation_parms = {
         'probeSemiangle'        : tmp_row.probeSemiangle,
         'filenameOutput'        : str(tmp_row.filenameOutput),  # ensure it doesn't pass a pathlib object
-        'filenameAtoms'         : str(tmp_row.save_name),        # ensure it doesn't pass a pathlib object
+        'filenameAtoms'         : str(tmp_row.structure_save_name),        # ensure it doesn't pass a pathlib object
         'probeSemiangle'        : tmp_row.probeSemiangle,
         'alphaBeamMax'          : tmp_row.probeSemiangle,
         'numFP'                 : tmp_row.numFP,

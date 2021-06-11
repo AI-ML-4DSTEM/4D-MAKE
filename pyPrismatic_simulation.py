@@ -148,7 +148,7 @@ def __main__():
             pass
         
         # for each row in the roation dataframe create the simualtion dataframe
-
+        master_rotation_df['name'] = 'name'  # seeing if this fixes -- AttributeError: 'DataFrame' object has no attribute 'name'
         res = master_rotation_df.apply(lambda row: df_utils.create_simulation_dataframe_from_series(
                                         row=row, 
                                         E0s=E0s,

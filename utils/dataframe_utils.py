@@ -11,7 +11,8 @@ import os
 import itertools as it
 from uuid import uuid4
 from . import general_utils as  gen_utils 
-
+import numpy
+import numpy as np
 
 
 def master_df_loader(master_df_path: Union[str, pathlib.PosixPath, pathlib.WindowsPath],
@@ -78,7 +79,7 @@ def create_simulation_dataframe_from_series(row:pandas.Series,
                                 h5_save_path: Union[str, pathlib.PosixPath, pathlib.WindowsPath],
                                 dataframe_save_path: Union[str, pathlib.PosixPath, pathlib.WindowsPath],
                                 algorithm:str = 'multislice',
-                                no_pixels:tuple = (512,512),
+                                no_pixels:Union[tuple,list,numpy.ndarray] = np.array(512,512),
                                 numSlices:int = 10
                                 ):
 

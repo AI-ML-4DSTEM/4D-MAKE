@@ -79,7 +79,7 @@ def create_simulation_dataframe_from_series(row:pandas.Series,
                                 h5_save_path: Union[str, pathlib.PosixPath, pathlib.WindowsPath],
                                 dataframe_save_path: Union[str, pathlib.PosixPath, pathlib.WindowsPath],
                                 algorithm:str = 'multislice',
-                                no_pixels:Union[tuple,list,numpy.ndarray] = np.array(512,512),
+                                no_pixels:Union[tuple,list,numpy.ndarray] = np.array([512,512]),
                                 numSlices:int = 10
                                 ):
 

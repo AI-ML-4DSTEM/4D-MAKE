@@ -146,7 +146,7 @@ def create_simulation_dataframe_from_series(row:pandas.Series,
         tmp_row['simulation_seed'] = gen_utils.hash_string_to_int(str(tmp_row.filenameOutput))
         tmp_row['algorithm'] = algorithm
         tmp_row['simulation_program'] = 'pyprismatic'
-        
+        tmp_row['name'] = 'name' # seeing if this fixes -- AttributeError: 'DataFrame' object has no attribute 'name'
         # add it to the dictionary
         simulations_params[key] = tmp_row    
     

@@ -111,7 +111,7 @@ def __main__():
     if args.master_simulation_df != None:
         # load the dataframe with all the rotation names and structure paths
         master_simulation_df = df_utils.master_df_loader(
-                        master_df_path=rot_master_df_path, # this looks wrong
+                        master_df_path=args.master_simulation_df, # this looks wrong
                         df_type=args.dataframe_type,
                         df_extension=args.df_extension
                         )

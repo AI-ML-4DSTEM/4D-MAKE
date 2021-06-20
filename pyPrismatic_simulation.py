@@ -115,6 +115,8 @@ def __main__():
                         df_type=args.dataframe_type,
                         df_extension=args.df_extension
                         )
+        
+        print(type(master_simulation_df))
         if args.smoke_test:
             master_simulation_df = master_simulation_df[:4]
             nparts = 4
@@ -184,6 +186,10 @@ def __main__():
         #                 df_utils.check_master_dataframe_for_duplicates(df),
         #                 meta=master_simulation_df).compute(scheduler=client)
 
+    if type(master_simulation_df) == pandas.core.frame.DataFrame:
+        master_simulation_df = dd.from_pandas(master_simulation_df, npartitions=4) # how to pick a sensible number here
+    else:
+        pass
     # Simulate the dataframe
     res = master_simulation_df.apply(lambda row: sim_utils.simulate_row(row), axis=1, meta=master_simulation_df)
 

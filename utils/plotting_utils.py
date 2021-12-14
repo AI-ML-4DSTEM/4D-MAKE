@@ -30,31 +30,34 @@ def change_path_root(row:pandas.Series,
     return filename
 
 
-def get_pots_cbeds_and_probe(file_path):
+def get_pots_cbeds_and_probe(file_path: str):
     """
     Place holder
-    
+
     """
-    
+
     with h5py.File(file_path, 'r') as f:
-        
+
         ### Potentials
         pots = [] # create empty list to append the potentials to
         # loop over all the potentials for each thickness
         for key in f['4DSTEM_simulation/data/realslices/'].keys():
             pots.append(f[f'4DSTEM_simulation/data/realslices/{key}/data'][...]) # append each potential
-        pots = np.concatenate(pots, axis=0) # stack them into a giant stack each potential has differnet number of layers 
-        
-        
+        pots = np.concatenate(pots, axis=0) # stack them into a giant stack each potential has differnet number of layers
+
+
         ### CBEDS
         cbeds = [] # create empty list to append cbeds to
         for key in f['4DSTEM_simulation/data/datacubes/']:
             cbeds.append(f[f'4DSTEM_simulation/data/datacubes/{key}/data'][0,0,...])
-        cbeds = np.swapaxes(np.stack(cbeds), 0, 2) # swapping the axis to be consistent with Colin's
-        
+        #cbeds = np.swapaxes(np.stack(cbeds), 0, 2) # swapping the axis to be consistent with Colin's
+        cbeds = np.stack(cbeds, axis=2)
+
         ### Probe
         # need to correct the shape of the probe (e.g. half the size of it)
-        probe = np.fft.fftshift(abs(f['4DSTEM_simulation/data/diffractionslices/probe/data'][::2,::2])**2)
+        probe = np.fft.fftshift(np.abs(f['4DSTEM_simulation/data/diffractionslices/probe/data'][...])**2)
+        shape = (probe.shape[0] // 4, probe.shape[1] // 4)
+        probe = probe[shape[0]:-shape[0], shape[1]:-shape[1]]
         
         
     return pots, cbeds, probe

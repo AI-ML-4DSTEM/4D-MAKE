@@ -1,0 +1,23 @@
+name: Docker Image CI
+
+on:
+  push:
+    branches: [ Dev ]
+  pull_request:
+    branches: [ main ]
+
+  workflow_dispatch:
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Build the Docker image
+      run: |
+        docker build . --file DockerFiles/prismatic-pymatgen-dask-Dockerfile-baseimage-1 --tag base-image:$(date +%s)
+        docker build . --file DockerFiles/prismatic-pymatgen-dask-Dockerfile-alpha-7 --tag alpha-7:$(date +%s)
+

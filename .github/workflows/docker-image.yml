@@ -45,5 +45,5 @@ jobs:
           context: .
           file: DockerFiles/prismatic-pymatgen-dask-Dockerfile-alpha-7
           push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
+          tags: ${{ steps.docker_meta.outputs.tags }}
+          labels: ${{ steps.docker_meta.outputs.labels }}

@@ -16,14 +16,19 @@ jobs:
       - 
         name: Check out the repo
         uses: actions/checkout@v2
-      - 
+      -
+        name: Extract branch name
+        id: extract_branch
+        shell: bash
+        run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
+      -
         name: Extract metadata for Docker (tags, labels)
         id: docker_meta
         uses: docker/metadata-action@v3
         with:
           images: ${{ secrets.DOCKERHUB_USER_TEST }}/ai_ml_4dstem_test
           tags: |
-            type=raw,value=latest,enable=${{ endsWith(Github.ref, 'Dev') }}
+            type=raw,value=latest,enable=${{ endsWith(Github.ref, steps.extract_branch.outputs.branch) }}
             type=ref,event=tag
       - 
         name: Login to DockerHub

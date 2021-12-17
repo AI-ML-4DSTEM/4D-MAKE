@@ -22,7 +22,7 @@ jobs:
         uses: docker/metadata-action@v3
         with:
           images: ${{ secrets.DOCKERHUB_USER_TEST }}/ai_ml_4dstem_test
-          tags:|
+          tags: |
             type=raw,value=latest,enable=${{ endsWith(Github.ref, 'Dev') }}
             type=ref,event=tag
       - 
